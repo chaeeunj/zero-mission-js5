@@ -1,4 +1,4 @@
-import { Nav } from './components/index.js';
+import { Nav, NewsList } from './components/index.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   const navComponent = new Nav();
