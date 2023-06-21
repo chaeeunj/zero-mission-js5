@@ -29,53 +29,58 @@
   </div>
 </div> */
 class NewsList {
-  constructor() {
+  constructor(category) {
     this.element = document.createElement('div');
     this.element.classList.add('news-list-container');
+    this.category = category;
   }
 
   async renderNews() {
+    this.element.innerHTML = ''; // 기존 뉴스 목록 제거
+
     const country = 'kr';
-    const category = 'all';
     const page = 1;
     const pageSize = 5;
     const apiKey = '378d7a13db334e0ead763177ef0e5d82';
     const apiUrl = `https://newsapi.org/v2/top-headlines?country=${country}&category=${
-      category === 'all' ? '' : category
+      this.category === 'all' ? '' : this.category
     }&page=${page}&pageSize=${pageSize}&apiKey=${apiKey}`;
 
     // API 호출 및 데이터 가져오기
-    fetch(apiUrl)
-      .then((response) => response.json())
-      .then((data) => {
-        // 뉴스 아이템에 대한 반복문
-        data.articles.forEach((article) => {
-          // 썸네일, 제목, 내용 가져오기
-          const url = article.url;
-          const thumbnail = article.urlToImage;
-          const title = article.title;
-          const description = article.description;
+    try {
+      const response = await fetch(apiUrl);
+      const data = await response.json();
 
-          const articleElement = document.createElement('article');
-          articleElement.classList.add('news-list');
+      // 뉴스 아이템에 대한 반복문
+      data.articles.forEach((article) => {
+        // 썸네일, 제목, 내용 가져오기
+        const url = article.url;
+        const thumbnail =
+          article.urlToImage ||
+          'data:image/gif;base64,R0lGODlhAQABAIAAAMLCwgAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==';
+        const title = article.title;
+        const description = article.description || '';
 
-          const sectionElement = document.createElement('section');
-          sectionElement.classList.add('news-item');
+        const articleElement = document.createElement('article');
+        articleElement.classList.add('news-list');
 
-          const thumbnailElement = document.createElement('div');
-          thumbnailElement.classList.add('thumbnail');
-          thumbnailElement.innerHTML = `
+        const sectionElement = document.createElement('section');
+        sectionElement.classList.add('news-item');
+
+        const thumbnailElement = document.createElement('div');
+        thumbnailElement.classList.add('thumbnail');
+        thumbnailElement.innerHTML = `
             <a href=${url} target="_blank" rel="noopener noreferrer">
               <img
                 src=${thumbnail}
                 alt="thumbnail" />
             </a>
           `;
-          sectionElement.appendChild(thumbnailElement);
+        sectionElement.appendChild(thumbnailElement);
 
-          const contentElement = document.createElement('div');
-          contentElement.classList.add('contents');
-          contentElement.innerHTML = `
+        const contentElement = document.createElement('div');
+        contentElement.classList.add('contents');
+        contentElement.innerHTML = `
             <h2>
               <a href=${url} target="_blank" rel="noopener noreferrer">
                 ${title}
@@ -85,15 +90,15 @@ class NewsList {
               ${description}
             </p>
           `;
-          // 화면에 추가하기
-          sectionElement.appendChild(contentElement);
-          articleElement.appendChild(sectionElement);
-          this.element.appendChild(articleElement);
-        });
-      })
-      .catch((error) => {
-        console.error('뉴스를 불러오는 중 오류가 발생했습니다:', error);
+        // 화면에 추가하기
+        sectionElement.appendChild(contentElement);
+        articleElement.appendChild(sectionElement);
+
+        this.element.appendChild(articleElement);
       });
+    } catch (error) {
+      console.error('뉴스를 불러오는 중 오류가 발생했습니다:', error);
+    }
   }
 }
 export default NewsList;
